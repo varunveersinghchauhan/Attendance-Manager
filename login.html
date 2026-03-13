@@ -54,27 +54,22 @@
     <button onclick="login()">Login</button>
   </div>
 
-  <script>
-    async function login() {
-      const name = document.getElementById('name').value.trim();
-      const email = document.getElementById('email').value.trim();
+ <script>
+function login() {
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim();
 
-      if (!name || !email) {
-        alert('Please enter your name and email.');
-        return;
-      }
+  if (!name || !email) {
+    alert('Please enter your name and email.');
+    return;
+  }
 
-      // Save lead (login details) to backend
-      await fetch('http://localhost:5000/leads', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, timestamp: new Date().toISOString() })
-      });
+  // Save user locally (since GitHub Pages cannot run backend)
+  localStorage.setItem('user', JSON.stringify({ name, email }));
 
-      // Store locally & redirect
-      localStorage.setItem('user', JSON.stringify({ name, email }));
-      window.location.href = 'index.html';
-    }
-  </script>
+  // Redirect to main page
+  window.location.href = 'index.html';
+}
+</script>
 </body>
 </html>
