@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Attendance Manager</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: "Poppins", sans-serif;
+      background: 
+        linear-gradient(rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.3)),
+        url('soft-color-background-abstract-blurred-motion-in-bright-colors-2023532941.jpg') center/cover no-repeat fixed;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 40px 20px;
+      position: relative;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+    
+    h1 {
+      background: rgba(255, 255, 255, 0.95);
+      border: 2px solid rgba(255, 255, 255, 0.8);
+      color: #333;
+      padding: 20px 40px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      font-size: 26px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      z-index: 10;
+      text-align: center;
+      backdrop-filter: blur(10px);
+    }
+    
+    .icon {
+      font-size: 36px;
+      color: #555;
+    }
+    
+    .container {
+      background: rgba(255, 255, 255, 0.95);
+      border: 2px solid rgba(255, 255, 255, 0.8);
+      padding: 45px 40px;
+      border-radius: 16px;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25);
+      width: 100%;
+      max-width: 450px;
+      text-align: center;
+      z-index: 10;
+      position: relative;
+      margin-bottom: 40px;
+      backdrop-filter: blur(10px);
+    }
+    
+    .input-group {
+      position: relative;
+      margin: 25px 0;
+    }
+    
+    .input-icon {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 22px;
+      pointer-events: none;
+      color: #666;
+    }
+    
+    input {
+      width: 100%;
+      padding: 18px 18px 18px 55px;
+      border-radius: 10px;
+      border: 2px solid rgba(0, 0, 0, 0.2);
+      font-size: 16px;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.95);
+      color: #333;
+    }
+    
+    input::placeholder {
+      color: #666;
+    }
+    
+    input:focus {
+      outline: none;
+      border-color: #5a67d8;
+      background: rgba(255, 255, 255, 0.98);
+      box-shadow: 0 0 0 3px rgba(90, 103, 216, 0.2);
+    }
+    
+    button {
+      width: 100%;
+      padding: 18px;
+      border: none;
+      border-radius: 10px;
+      background: #5a67d8;
+      color: white;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 30px;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 15px rgba(90, 103, 216, 0.3);
+    }
+    
+    button:hover {
+      background: #4c51bf;
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(90, 103, 216, 0.4);
+    }
+    
+    button:active {
+      transform: translateY(-1px);
+    }
+    
+    #result {
+      font-weight: 600;
+      margin-top: 30px;
+      padding: 25px;
+      border-radius: 12px;
+      font-size: 16px;
+      line-height: 1.8;
+      min-height: 60px;
+      display: block;
+      text-align: center;
+      word-wrap: break-word;
+      border: 2px solid rgba(0, 0, 0, 0.1);
+      background: rgba(255, 255, 255, 0.95);
+      color: #333;
+    }
+    
+    #result:empty {
+      display: none;
+    }
+    
+    .result-success {
+      background: rgba(240, 249, 240, 0.98);
+      color: #2d5a2d;
+      border-color: rgba(46, 204, 113, 0.4);
+    }
+    
+    .result-warning {
+      background: rgba(255, 249, 230, 0.98);
+      color: #8a6d3b;
+      border-color: rgba(231, 76, 60, 0.4);
+    }
+    
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 22px;
+        padding: 18px 30px;
+      }
+      .icon {
+        font-size: 30px;
+      }
+      .container {
+        padding: 35px 28px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>
+    <span class="icon">📚</span>
+         College Attendance Manager      
+  </h1>
+  <div class="container">
+    <div class="input-group">
+      <span class="input-icon">✅</span>
+      <input type="number" id="attended" placeholder="Classes attended" />
+    </div>
+    <div class="input-group">
+      <span class="input-icon">📊</span>
+      <input type="number" id="total" placeholder="Total classes held" />
+    </div>
+    <div class="input-group">
+      <span class="input-icon">🎯</span>
+      <input type="number" id="target" placeholder="Target attendance % (e.g. 75)" />
+    </div>
+    <button onclick="calculate()">Calculate</button>
+    <div id="result"></div>
+  </div>
+
+  <script>
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (!user) {
+      window.location.href = 'login.html'; // redirect if not logged in
+      }
+    function calculate() {
+      const attended = parseFloat(document.getElementById("attended").value);
+      const total = parseFloat(document.getElementById("total").value);
+      const target = parseFloat(document.getElementById("target").value);
+      const result = document.getElementById("result");
+
+      if (isNaN(attended) || isNaN(total) || isNaN(target) || total <= 0 || target <= 0 || target > 100) {
+        result.innerHTML = "⚠️ Please enter valid numbers!";
+        result.className = 'result-warning';
+        return;
+      }
+
+      const percent = (attended / total) * 100;
+      const targetDecimal = target / 100;
+
+      if (percent >= target) {
+        const maxBunks = Math.floor((attended / targetDecimal) - total);
+        result.innerHTML = `🎉 Your attendance is <b>${percent.toFixed(2)}%</b><br><br>You can leave <b>${maxBunks}</b> more ${maxBunks === 1 ? 'class' : 'lectures'} and stay above ${target}%!`;
+        result.className = 'result-success';
+      } else {
+        const needed = Math.ceil((targetDecimal * total - attended) / (1 - targetDecimal));
+        result.innerHTML = `📈 Your attendance is <b>${percent.toFixed(2)}%</b><br><br>Attend <b>${needed}</b> more ${needed === 1 ? 'class' : 'lectures'} to reach ${target}%`;
+        result.className = 'result-warning';
+      }
+    }
+  </script>
+</body>
+</html>
