@@ -4,227 +4,473 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Attendance Manager</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    :root {
+      --bg: #0d0d0d;
+      --surface: #161616;
+      --surface2: #1f1f1f;
+      --border: #2a2a2a;
+      --accent: #c8f060;
+      --accent-dim: rgba(200, 240, 96, 0.12);
+      --accent-glow: rgba(200, 240, 96, 0.25);
+      --text: #f0ece4;
+      --muted: #666;
+      --warn: #ff6b4a;
+      --warn-dim: rgba(255, 107, 74, 0.12);
+      --success: #c8f060;
     }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
     body {
-      font-family: "Poppins", sans-serif;
-      background: 
-        linear-gradient(rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.3)),
-        url('soft-color-background-abstract-blurred-motion-in-bright-colors-2023532941.jpg') center/cover no-repeat fixed;
+      font-family: 'DM Mono', monospace;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Background grid */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(200,240,96,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(200,240,96,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Glowing orb top-right */
+    body::after {
+      content: '';
+      position: fixed;
+      top: -200px;
+      right: -200px;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(200,240,96,0.06) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 480px;
+    }
+
+    /* Header */
+    .header {
+      margin-bottom: 32px;
+    }
+
+    .header-label {
+      font-size: 11px;
+      letter-spacing: 0.25em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      opacity: 0.8;
+    }
+
+    .header h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(36px, 7vw, 52px);
+      color: var(--text);
+      line-height: 1.05;
+      font-weight: 400;
+    }
+
+    .header h1 em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .header-line {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, var(--accent) 0%, transparent 60%);
+      margin-top: 20px;
+      opacity: 0.4;
+    }
+
+    /* Card */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 36px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+    }
+
+    /* Input fields */
+    .fields {
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      min-height: 100vh;
-      padding: 40px 20px;
-      position: relative;
-      overflow-x: hidden;
-      overflow-y: auto;
+      gap: 16px;
+      margin-bottom: 28px;
     }
-    
-    h1 {
-      background: rgba(255, 255, 255, 0.95);
-      border: 2px solid rgba(255, 255, 255, 0.8);
-      color: #333;
-      padding: 20px 40px;
-      border-radius: 12px;
-      margin-bottom: 30px;
-      font-size: 26px;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+
+    .field {
+      position: relative;
+    }
+
+    .field-label {
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+      display: block;
+      transition: color 0.2s;
+    }
+
+    .field:focus-within .field-label {
+      color: var(--accent);
+    }
+
+    .input-wrap {
+      position: relative;
       display: flex;
       align-items: center;
-      gap: 15px;
-      z-index: 10;
-      text-align: center;
-      backdrop-filter: blur(10px);
     }
-    
-    .icon {
-      font-size: 36px;
-      color: #555;
-    }
-    
-    .container {
-      background: rgba(255, 255, 255, 0.95);
-      border: 2px solid rgba(255, 255, 255, 0.8);
-      padding: 45px 40px;
-      border-radius: 16px;
-      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25);
-      width: 100%;
-      max-width: 450px;
-      text-align: center;
-      z-index: 10;
-      position: relative;
-      margin-bottom: 40px;
-      backdrop-filter: blur(10px);
-    }
-    
-    .input-group {
-      position: relative;
-      margin: 25px 0;
-    }
-    
+
     .input-icon {
       position: absolute;
-      left: 18px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 22px;
+      left: 14px;
+      font-size: 15px;
       pointer-events: none;
-      color: #666;
+      opacity: 0.5;
+      transition: opacity 0.2s;
     }
-    
-    input {
+
+    .field:focus-within .input-icon {
+      opacity: 1;
+    }
+
+    input[type=number] {
       width: 100%;
-      padding: 18px 18px 18px 55px;
-      border-radius: 10px;
-      border: 2px solid rgba(0, 0, 0, 0.2);
-      font-size: 16px;
-      transition: all 0.3s ease;
-      background: rgba(255, 255, 255, 0.95);
-      color: #333;
+      padding: 14px 14px 14px 42px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 15px;
+      font-weight: 400;
+      transition: all 0.2s;
+      -moz-appearance: textfield;
     }
-    
-    input::placeholder {
-      color: #666;
+
+    input[type=number]::-webkit-outer-spin-button,
+    input[type=number]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
     }
-    
-    input:focus {
+
+    input[type=number]::placeholder {
+      color: #444;
+    }
+
+    input[type=number]:focus {
       outline: none;
-      border-color: #5a67d8;
-      background: rgba(255, 255, 255, 0.98);
-      box-shadow: 0 0 0 3px rgba(90, 103, 216, 0.2);
+      border-color: var(--accent);
+      background: #1a1a1a;
+      box-shadow: 0 0 0 3px var(--accent-dim), inset 0 0 20px rgba(200,240,96,0.02);
     }
-    
-    button {
-      width: 100%;
-      padding: 18px;
-      border: none;
-      border-radius: 10px;
-      background: #5a67d8;
-      color: white;
-      font-size: 18px;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 30px;
-      transition: all 0.3s ease;
+
+    /* Divider with label */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .divider-text {
+      font-size: 10px;
+      letter-spacing: 0.2em;
       text-transform: uppercase;
-      letter-spacing: 1px;
-      box-shadow: 0 4px 15px rgba(90, 103, 216, 0.3);
+      color: var(--muted);
     }
-    
-    button:hover {
-      background: #4c51bf;
-      transform: translateY(-3px);
-      box-shadow: 0 6px 20px rgba(90, 103, 216, 0.4);
+
+    /* Button */
+    .btn {
+      width: 100%;
+      padding: 16px 24px;
+      background: var(--accent);
+      color: #0d0d0d;
+      border: none;
+      border-radius: 3px;
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
     }
-    
-    button:active {
-      transform: translateY(-1px);
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.15);
+      opacity: 0;
+      transition: opacity 0.2s;
     }
-    
-    #result {
-      font-weight: 600;
-      margin-top: 30px;
-      padding: 25px;
-      border-radius: 12px;
-      font-size: 16px;
-      line-height: 1.8;
-      min-height: 60px;
-      display: block;
-      text-align: center;
-      word-wrap: break-word;
-      border: 2px solid rgba(0, 0, 0, 0.1);
-      background: rgba(255, 255, 255, 0.95);
-      color: #333;
+
+    .btn:hover::before { opacity: 1; }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 8px 24px var(--accent-glow); }
+    .btn:active { transform: translateY(0); }
+
+    /* Result panel */
+    .result {
+      margin-top: 24px;
+      padding: 24px;
+      border-radius: 3px;
+      border: 1px solid var(--border);
+      display: none;
+      animation: slideUp 0.3s ease;
     }
-    
-    #result:empty {
+
+    .result.visible { display: block; }
+
+    .result.success {
+      background: var(--accent-dim);
+      border-color: rgba(200,240,96,0.3);
+    }
+
+    .result.warning {
+      background: var(--warn-dim);
+      border-color: rgba(255,107,74,0.3);
+    }
+
+    .result-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 2px;
+      margin-bottom: 14px;
+    }
+
+    .result.success .result-badge {
+      background: rgba(200,240,96,0.15);
+      color: var(--accent);
+      border: 1px solid rgba(200,240,96,0.3);
+    }
+
+    .result.warning .result-badge {
+      background: rgba(255,107,74,0.15);
+      color: var(--warn);
+      border: 1px solid rgba(255,107,74,0.3);
+    }
+
+    .result-percent {
+      font-family: 'DM Serif Display', serif;
+      font-size: 52px;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .result.success .result-percent { color: var(--accent); }
+    .result.warning .result-percent { color: var(--warn); }
+
+    .result-message {
+      font-size: 13px;
+      color: #aaa;
+      line-height: 1.6;
+    }
+
+    .result-message strong {
+      color: var(--text);
+    }
+
+    /* Progress bar */
+    .progress-bar-wrap {
+      margin-top: 18px;
+      height: 3px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .result.success .progress-bar { background: var(--accent); }
+    .result.warning .progress-bar { background: var(--warn); }
+
+    /* Error */
+    .error-msg {
+      margin-top: 16px;
+      padding: 14px 18px;
+      background: rgba(255,107,74,0.08);
+      border: 1px solid rgba(255,107,74,0.25);
+      border-radius: 3px;
+      color: var(--warn);
+      font-size: 12px;
+      letter-spacing: 0.05em;
       display: none;
     }
-    
-    .result-success {
-      background: rgba(240, 249, 240, 0.98);
-      color: #2d5a2d;
-      border-color: rgba(46, 204, 113, 0.4);
+
+    .error-msg.visible { display: block; }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
-    
-    .result-warning {
-      background: rgba(255, 249, 230, 0.98);
-      color: #8a6d3b;
-      border-color: rgba(231, 76, 60, 0.4);
+
+    /* Footer note */
+    .footer-note {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 11px;
+      color: #333;
+      letter-spacing: 0.05em;
     }
-    
+
     @media (max-width: 480px) {
-      h1 {
-        font-size: 22px;
-        padding: 18px 30px;
-      }
-      .icon {
-        font-size: 30px;
-      }
-      .container {
-        padding: 35px 28px;
-      }
+      .card { padding: 24px 20px; }
     }
   </style>
 </head>
 <body>
-  <h1>
-    <span class="icon">📚</span>
-         College Attendance Manager      
-  </h1>
-  <div class="container">
-    <div class="input-group">
-      <span class="input-icon">✅</span>
-      <input type="number" id="attended" placeholder="Classes attended" />
+  <div class="wrapper">
+    <div class="header">
+      <div class="header-label">— Academic Tools</div>
+      <h1>Attendance<br><em>Manager</em></h1>
+      <div class="header-line"></div>
     </div>
-    <div class="input-group">
-      <span class="input-icon">📊</span>
-      <input type="number" id="total" placeholder="Total classes held" />
+
+    <div class="card">
+      <div class="fields">
+        <div class="field">
+          <label class="field-label">Classes Attended</label>
+          <div class="input-wrap">
+            <span class="input-icon">✦</span>
+            <input type="number" id="attended" placeholder="e.g. 42" min="0" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Total Classes Held</label>
+          <div class="input-wrap">
+            <span class="input-icon">◈</span>
+            <input type="number" id="total" placeholder="e.g. 56" min="1" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Target Percentage</label>
+          <div class="input-wrap">
+            <span class="input-icon">⌖</span>
+            <input type="number" id="target" placeholder="e.g. 75" min="1" max="100" />
+          </div>
+        </div>
+      </div>
+
+      <div class="divider">
+        <div class="divider-line"></div>
+        <span class="divider-text">Calculate</span>
+        <div class="divider-line"></div>
+      </div>
+
+      <button class="btn" onclick="calculate()">Run Analysis →</button>
+
+      <div class="error-msg" id="error">⚠ Please enter valid numbers in all fields.</div>
+
+      <div class="result" id="result">
+        <div class="result-badge" id="result-badge"></div>
+        <div class="result-percent" id="result-percent"></div>
+        <div class="result-message" id="result-message"></div>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar" id="progress-bar" style="width:0%"></div>
+        </div>
+      </div>
     </div>
-    <div class="input-group">
-      <span class="input-icon">🎯</span>
-      <input type="number" id="target" placeholder="Target attendance % (e.g. 75)" />
-    </div>
-    <button onclick="calculate()">Calculate</button>
-    <div id="result"></div>
+
+    <div class="footer-note">Built for college students · No data stored</div>
   </div>
 
   <script>
-      const user = JSON.parse(localStorage.getItem('user'));
-      if (!user) {
-      window.location.href = 'login.html'; // redirect if not logged in
-      }
     function calculate() {
       const attended = parseFloat(document.getElementById("attended").value);
-      const total = parseFloat(document.getElementById("total").value);
-      const target = parseFloat(document.getElementById("target").value);
-      const result = document.getElementById("result");
+      const total    = parseFloat(document.getElementById("total").value);
+      const target   = parseFloat(document.getElementById("target").value);
 
-      if (isNaN(attended) || isNaN(total) || isNaN(target) || total <= 0 || target <= 0 || target > 100) {
-        result.innerHTML = "⚠️ Please enter valid numbers!";
-        result.className = 'result-warning';
+      const errorEl   = document.getElementById("error");
+      const resultEl  = document.getElementById("result");
+
+      // Validation
+      if (isNaN(attended) || isNaN(total) || isNaN(target) ||
+          total <= 0 || target <= 0 || target > 100 || attended < 0 || attended > total) {
+        errorEl.classList.add('visible');
+        resultEl.classList.remove('visible');
         return;
       }
+      errorEl.classList.remove('visible');
 
       const percent = (attended / total) * 100;
       const targetDecimal = target / 100;
 
+      const percentEl  = document.getElementById("result-percent");
+      const messageEl  = document.getElementById("result-message");
+      const badgeEl    = document.getElementById("result-badge");
+      const progressEl = document.getElementById("progress-bar");
+
+      percentEl.textContent = percent.toFixed(1) + '%';
+      progressEl.style.width = Math.min(percent, 100) + '%';
+
+      resultEl.classList.remove('success', 'warning');
+
       if (percent >= target) {
         const maxBunks = Math.floor((attended / targetDecimal) - total);
-        result.innerHTML = `🎉 Your attendance is <b>${percent.toFixed(2)}%</b><br><br>You can leave <b>${maxBunks}</b> more ${maxBunks === 1 ? 'class' : 'lectures'} and stay above ${target}%!`;
-        result.className = 'result-success';
+        resultEl.classList.add('success', 'visible');
+        badgeEl.textContent = '● Above Target';
+        messageEl.innerHTML = `You can skip <strong>${maxBunks}</strong> more ${maxBunks === 1 ? 'class' : 'classes'} and still stay at or above <strong>${target}%</strong>.`;
       } else {
         const needed = Math.ceil((targetDecimal * total - attended) / (1 - targetDecimal));
-        result.innerHTML = `📈 Your attendance is <b>${percent.toFixed(2)}%</b><br><br>Attend <b>${needed}</b> more ${needed === 1 ? 'class' : 'lectures'} to reach ${target}%`;
-        result.className = 'result-warning';
+        resultEl.classList.add('warning', 'visible');
+        badgeEl.textContent = '▲ Below Target';
+        messageEl.innerHTML = `Attend <strong>${needed}</strong> consecutive ${needed === 1 ? 'class' : 'classes'} to reach <strong>${target}%</strong>.`;
       }
     }
+
+    // Allow pressing Enter to calculate
+    document.addEventListener('keydown', e => { if (e.key === 'Enter') calculate(); });
   </script>
 </body>
 </html>
