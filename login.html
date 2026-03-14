@@ -3,71 +3,364 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login - Attendance Manager</title>
+  <title>Login — Attendance Manager</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --bg: #0d0d0d;
+      --surface: #161616;
+      --surface2: #1f1f1f;
+      --border: #2a2a2a;
+      --accent: #c8f060;
+      --accent-dim: rgba(200, 240, 96, 0.12);
+      --accent-glow: rgba(200, 240, 96, 0.25);
+      --text: #f0ece4;
+      --muted: #666;
+      --warn: #ff6b4a;
+      --warn-dim: rgba(255, 107, 74, 0.12);
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
     body {
-      font-family: "Poppins", sans-serif;
-      background: linear-gradient(rgba(255,255,255,0.4), rgba(255,255,255,0.4)),
-        url('soft-color-background-abstract-blurred-motion-in-bright-colors-2023532941.jpg') center/cover no-repeat fixed;
+      font-family: 'DM Mono', monospace;
+      background: var(--bg);
+      min-height: 100vh;
       display: flex;
-      justify-content: center;
       align-items: center;
-      height: 100vh;
+      justify-content: center;
+      padding: 40px 20px;
+      overflow: hidden;
+      position: relative;
     }
-    .login-box {
-      background: rgba(255, 255, 255, 0.9);
-      padding: 40px;
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-      text-align: center;
-      width: 350px;
+
+    /* Background grid */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(200,240,96,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(200,240,96,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
     }
-    input {
+
+    /* Glowing orb bottom-left */
+    body::after {
+      content: '';
+      position: fixed;
+      bottom: -200px;
+      left: -200px;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(200,240,96,0.06) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .wrapper {
+      position: relative;
+      z-index: 1;
       width: 100%;
-      padding: 14px;
-      margin: 10px 0;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 16px;
+      max-width: 420px;
+      animation: fadeIn 0.5s ease;
     }
-    button {
+
+    /* Header */
+    .header {
+      margin-bottom: 32px;
+    }
+
+    .header-label {
+      font-size: 11px;
+      letter-spacing: 0.25em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      opacity: 0.8;
+    }
+
+    .header h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(34px, 7vw, 48px);
+      color: var(--text);
+      line-height: 1.05;
+      font-weight: 400;
+    }
+
+    .header h1 em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .header-line {
       width: 100%;
-      padding: 14px;
-      background: #5a67d8;
-      color: white;
-      font-weight: bold;
+      height: 1px;
+      background: linear-gradient(90deg, var(--accent) 0%, transparent 60%);
+      margin-top: 20px;
+      opacity: 0.4;
+    }
+
+    /* Card */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 36px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+    }
+
+    /* Welcome text */
+    .welcome {
+      margin-bottom: 28px;
+    }
+
+    .welcome-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 20px;
+      color: var(--text);
+      font-weight: 400;
+      margin-bottom: 6px;
+    }
+
+    .welcome-sub {
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      line-height: 1.5;
+    }
+
+    /* Fields */
+    .fields {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .field {
+      position: relative;
+    }
+
+    .field-label {
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+      display: block;
+      transition: color 0.2s;
+    }
+
+    .field:focus-within .field-label {
+      color: var(--accent);
+    }
+
+    .input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 14px;
+      font-size: 15px;
+      pointer-events: none;
+      opacity: 0.4;
+      transition: opacity 0.2s;
+    }
+
+    .field:focus-within .input-icon {
+      opacity: 1;
+    }
+
+    input[type=text],
+    input[type=email] {
+      width: 100%;
+      padding: 14px 14px 14px 42px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 14px;
+      font-weight: 400;
+      transition: all 0.2s;
+    }
+
+    input::placeholder {
+      color: #444;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: #1a1a1a;
+      box-shadow: 0 0 0 3px var(--accent-dim), inset 0 0 20px rgba(200,240,96,0.02);
+    }
+
+    /* Divider */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .divider-text {
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* Button */
+    .btn {
+      width: 100%;
+      padding: 16px 24px;
+      background: var(--accent);
+      color: #0d0d0d;
       border: none;
-      border-radius: 8px;
+      border-radius: 3px;
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
       cursor: pointer;
-      font-size: 16px;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
     }
-    button:hover {
-      background: #4c51bf;
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.15);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .btn:hover::before { opacity: 1; }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 8px 24px var(--accent-glow); }
+    .btn:active { transform: translateY(0); }
+
+    /* Error */
+    .error-msg {
+      margin-top: 16px;
+      padding: 14px 18px;
+      background: var(--warn-dim);
+      border: 1px solid rgba(255,107,74,0.25);
+      border-radius: 3px;
+      color: var(--warn);
+      font-size: 12px;
+      letter-spacing: 0.05em;
+      display: none;
+    }
+
+    .error-msg.visible { display: block; }
+
+    /* Footer */
+    .footer-note {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 11px;
+      color: #333;
+      letter-spacing: 0.05em;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 480px) {
+      .card { padding: 24px 20px; }
     }
   </style>
 </head>
 <body>
-  <div class="login-box">
-    <h2>Login to Continue</h2>
-    <input type="text" id="name" placeholder="Your Name" required />
-    <input type="email" id="email" placeholder="Your Email" required />
-    <button onclick="login()">Login</button>
+  <div class="wrapper">
+    <div class="header">
+      <div class="header-label">— Academic Tools</div>
+      <h1>Attendance<br><em>Manager</em></h1>
+      <div class="header-line"></div>
+    </div>
+
+    <div class="card">
+      <div class="welcome">
+        <div class="welcome-title">Welcome back.</div>
+        <div class="welcome-sub">Sign in to track your attendance and manage your classes.</div>
+      </div>
+
+      <div class="fields">
+        <div class="field">
+          <label class="field-label">Your Name</label>
+          <div class="input-wrap">
+            <span class="input-icon">✦</span>
+            <input type="text" id="name" placeholder="e.g. Arjun Sharma" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label">Email Address</label>
+          <div class="input-wrap">
+            <span class="input-icon">◈</span>
+            <input type="email" id="email" placeholder="e.g. arjun@college.edu" />
+          </div>
+        </div>
+      </div>
+
+      <div class="divider">
+        <div class="divider-line"></div>
+        <span class="divider-text">Continue</span>
+        <div class="divider-line"></div>
+      </div>
+
+      <button class="btn" onclick="login()">Sign In →</button>
+
+      <div class="error-msg" id="error">⚠ Please enter both your name and a valid email.</div>
+    </div>
+
+    <div class="footer-note">No password required · Session only</div>
   </div>
 
- <script>
-function login() {
-  const name = document.getElementById('name').value.trim();
-  const email = document.getElementById('email').value.trim();
+  <script>
+    function login() {
+      const name  = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const errorEl = document.getElementById('error');
 
-  if (!name || !email) {
-    alert('Please enter your name and email.');
-    return;
-  }
+      if (!name || !email || !email.includes('@')) {
+        errorEl.classList.add('visible');
+        return;
+      }
 
-  localStorage.setItem('user', JSON.stringify({ name, email }));
+      errorEl.classList.remove('visible');
+      localStorage.setItem('user', JSON.stringify({ name, email }));
+      window.location.replace("index.html");
+    }
 
-  window.location.replace("index.html");
-}
-</script>
+    document.addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+  </script>
 </body>
 </html>
